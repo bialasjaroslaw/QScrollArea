@@ -4,6 +4,7 @@
 #include <QScrollBar>
 #include <QComboBox>
 #include <QtGlobal>
+#include <QTimer>
 
 Dialog::Dialog(QWidget *parent) :
     QDialog(parent),
@@ -22,6 +23,24 @@ Dialog::~Dialog()
     delete ui;
 }
 
+QSize Dialog::calculateSizeHint()
+{
+    int adjustedWidth = width();
+    int adjustedHeight = 0;
+    QLayout* currentLayout = layout();
+    for(QObject* obj : this->children())
+    {
+        QWidget* w = qobject_cast<QWidget*>(obj);
+        if(w == nullptr)
+            continue;
+        QSize hint = w->sizeHint();
+        adjustedWidth = std::max(adjustedWidth, hint.width());
+        adjustedHeight += hint.height() + currentLayout->spacing();
+    }
+    adjustedHeight += (ui->scrollAreaWidgetContents->sizeHint().height() + currentLayout->spacing());
+    return QSize(adjustedWidth, adjustedHeight);
+}
+
 void Dialog::addItems(int index)
 {
     auto addSomeItems = [this](int itemsNumber){
@@ -37,5 +56,7 @@ void Dialog::addItems(int index)
         delete w;
     container.clear();
     addSomeItems(index);
-    repaint();
+    QTimer::singleShot(1, this, [this](){
+       this->resize(calculateSizeHint());
+    });
 }

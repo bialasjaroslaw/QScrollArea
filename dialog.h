@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include <QSize>
 
 namespace Ui {
 class Dialog;
@@ -21,6 +22,7 @@ private slots:
     void addItems(int index);
 private:
     QList<QWidget*> container;
+    QSize calculateSizeHint();
 };
 
 #endif // DIALOG_H
